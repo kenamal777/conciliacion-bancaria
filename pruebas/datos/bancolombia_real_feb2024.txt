@@ -1,0 +1,23 @@
+Bancolombia                                                    ESTADO DE CUENTA
+
+                                        DESDE: 2024/01/31   HASTA: 2024/02/29
+AQUATRECE COLOMBIA                      CUENTA CORRIENTE
+KR 1 4 02 BG 11                         NUMERO    4064169148
+SSCHIA CUNDINAMARCA                     SUCURSAL  CHIA
+
+                                    RESUMEN
+SALDO ANTERIOR    $   549,327,803.70      SALDO PROMEDIO            $ 651,334,263
+TOTAL ABONOS      $     2,681,722.76      CUPO SOBREGIRO            $         .00
+TOTAL CARGOS      $     2,644,519.96      VALOR INTERESES COBRADOS  $         .00
+SALDO ACTUAL      $   549,365,006.50      RETEFUENTE                $         .00
+
+FECHA  DESCRIPCION                   SUCURSAL           DCTO.          VALOR            SALDO
+1/02   PAGO DE PROV SERVIEQUIPOS I                              -1,561,070.00   547,766,733.70
+1/02   PAGO DE PROV AGUAS E INGENIE                               -902,107.00   546,864,626.70
+1/02   CONSIG LOCAL REFEREN EFECTIVO CANAL CORRESPONSA           2,681,722.76   549,546,349.46
+2/02   TRANSFERENCIA CTA SUC VIRTUAL                              -178,000.00   549,368,349.46
+2/02   IVA COMISION RECAUDO CAJA                                      -635.04   549,367,714.42
+2/02   IMPTO GOBIERNO 4X1000                                        -2,707.92   549,365,006.50
+
+DCF:defensoria@bancolombia.com   www.bancolombia.com
+                                                                       PAGINA: 1

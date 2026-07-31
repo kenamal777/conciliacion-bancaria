@@ -1,0 +1,22 @@
+BANCO DE BOGOTA
+GRUPO AVAL
+EXTRACTO DE CUENTA CORRIENTE
+COMERCIALIZADORA ANDINA S.A.S.
+NUMERO DE CUENTA: 445566778
+DESDE 01/04/2025 HASTA 30/04/2025
+
+SALDO ANTERIOR                                                              8.000.000,00
+
+FECHA     DESCRIPCION                      OFICINA  REFERENCIA   DEBITOS      CREDITOS        SALDO
+01-ABR    CONSIGNACION CHEQUE LOCAL          001     55501     
+                                                                            2.400.000,00  10.400.000,00
+04-ABR    PAGO IMPUESTOS DISTRITALES         001     55510    1.980.000,00                  8.420.000,00
+10-ABR    ABONO TRANSFERENCIA ACH            001     55522                   3.150.000,00  11.570.000,00
+16-ABR    CHEQUE 0004521 PAGADO              007     55540    2.700.000,00                  8.870.000,00
+21-ABR    RETENCION EN LA FUENTE             001     55555       45.000,00                  8.825.000,00
+24-ABR    NOTA DEBITO COMISION CHEQUERA      001     55560       32.000,00                  8.793.000,00
+29-ABR    ABONO INTERESES CUENTA             001     55570                      15.400,00  8.808.400,00
+
+TOTAL DEBITOS                                                  4.757.000,00
+TOTAL CREDITOS                                                               5.565.400,00
+SALDO AL CORTE                                                                            8.808.400,00

@@ -1,0 +1,22 @@
+BANCO AV VILLAS
+GRUPO AVAL
+EXTRACTO CUENTA CORRIENTE
+COMERCIALIZADORA ANDINA S.A.S.
+CUENTA CORRIENTE No. 987654-321
+PERIODO DEL 01/04/2025 AL 30/04/2025
+
+SALDO ANTERIOR                                                                    2.000.000,00
+
+FECHA       DESCRIPCION                       DOCUMENTO   VALOR DEBITO   VALOR CREDITO         SALDO
+02/04/2025  CONSIGNACION NACIONAL CLIENTE GHI  0012345                    1.500.000,00  3.500.000,00
+05/04/2025  CHEQUE PAGADO 0000876              0000876      500.000,00                  3.000.000,00
+09/04/2025  NOTA CREDITO DEVOLUCION            0012400                      120.000,00  3.120.000,00
+14/04/2025  DEBITO AUTOMATICO SEGURO VIDA      0012455       85.600,00                  3.034.400,00
+18/04/2025  TRANSFERENCIA RECIBIDA CLIENTE JKL 0012480                      950.000,00  3.984.400,00
+23/04/2025  PAGO PROVEEDOR MATERIAS PRIMAS     0012500    1.240.000,00                  2.744.400,00
+28/04/2025  COMISION MANEJO CUENTA             0000000       18.900,00                  2.725.500,00
+30/04/2025  GMF 4X1000                         0000000        7.376,00                  2.718.124,00
+
+TOTAL DEBITOS                                                            1.851.876,00
+TOTAL CREDITOS                                                                          2.570.000,00
+SALDO ACTUAL                                                                            2.718.124,00

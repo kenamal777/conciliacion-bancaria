@@ -1,0 +1,48 @@
+Banco de Bogota                                    Extracto Cuenta Corriente
+                                                   Pagina 1 de 2
+
+Pagar tus impuestos mientras consultas las noticias, tambien es posible
+Portal Web                       Hazlo a traves de
+Otra forma de consultar          www.bancodebogota.com
+
+LEO                              FECHA EXTRACTO      Julio - Julio 2020
+Entrega: UR Oficina: 0234        Desde: Julio 01   Hasta: Julio 31
+Gerencia Banca Pyme 52           Cuenta Numero: 613000355
+                                 Tipo de Cuenta:
+                                 Cod. Origen: 0613
+                                 MEDELLIN
+
+Resumen de la Informacion                    Resumen de Cobros
+Saldo Inicial:          201,866,153.85       Cuentas Contingentes:        0.00
+Total 000002 Abonos:         21,500.00       Honorarios:                  0.00
+Total 000006 Cargos:        -26,997.24       Gastos Judiciales:           0.00
+Total IVA:                        0.00       Valor Total Adeudado:        0.00
+Total 4x1000 GMF:            -4,648.00
+Total Retencion:                  0.00
+Total Intereses:             54,611.00
+Saldo Final:            201,910,619.61
+
+Fecha  Cod   Descripcion del Movimiento          Ciudad   Oficina/Canal  Documento      Valor          Saldo
+       Trans
+01/07  0021  Consignacion nacional (10,000.00 en efectivo $0.00 en
+             cheque)                             BOGOTA   Principal                 10,800.00  201,876,953.85
+01/07  0021  Consignacion nacional (10,700.00 en efectivo $0.00 en
+             cheque)                             BOGOTA   Principal                 10,700.00  201,887,653.85
+01/07  0902  Cargo omision consignacion Nacional - OF
+                                                 BOGOTA   Principal      0002361   -11,900.00  201,875,753.85
+01/07  0902  Cargo omision consignacion Nacional - OF
+                                                 BOGOTA   Principal      0002361   -11,500.00  201,864,253.85
+01/07  6721  Cargo Aplicado por Comision Cuenta de Administracion
+             que Esta                            CALI     Gcia Bca Pyme      -164.47  201,864,089.38
+02/07  6713  Intereses Ganados                   CALI     Gcia Bca Pyme    10,921.00  201,875,010.38
+02/07  6786  Gravamen Movimientos Financieros    CALI     Gcia Bca Pyme    -4,522.00  201,870,488.38
+02/07  6786  Gravamen Movimientos Financieros    CALI     Gcia Bca Pyme      -117.00  201,870,371.38
+02/07  6721  Cargo Aplicado por Comision Cuenta de Administracion
+             que Esta                            CALI     Gcia Bca Pyme      -354.47  201,870,016.91
+06/07  6713  Intereses Ganados                   CALI     Gcia Bca Pyme    32,766.00  201,902,782.91
+06/07  6786  Gravamen Movimientos Financieros    CALI     Gcia Bca Pyme        -9.00  201,902,773.91
+06/07  6721  Cargo Aplicado por Comision Cuenta de Administracion
+             que Esta                            CALI     Gcia Bca Pyme      -784.68  201,901,989.23
+07/07  6713  Intereses Ganados                   CALI     Gcia Bca Pyme    10,924.00  201,912,913.23
+07/07  6721  Cargo Aplicado por Comision Cuenta de Administracion
+             que Esta                            CALI     Gcia Bca Pyme    -2,293.62  201,910,619.61

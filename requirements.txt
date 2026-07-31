@@ -1,0 +1,25 @@
+# TODAS las dependencias son opcionales: el programa funciona solo con Python
+# 3.10+ usando su lector interno de PDF. Cada paquete agrega una capacidad.
+#
+# Instalación recomendada (cubre PDF, imágenes y Excel):
+#   pip install -r requirements.txt
+#
+# Y para leer JPG/PNG hay que instalar además el PROGRAMA Tesseract OCR:
+#   Windows: https://github.com/UB-Mannheim/tesseract/wiki
+#   macOS:   brew install tesseract tesseract-lang
+#   Ubuntu:  sudo apt install tesseract-ocr tesseract-ocr-spa
+
+# Lectura precisa de PDF con texto (muy recomendado).
+pdfplumber>=0.11.0
+
+# Lectura de PDF y conversión de páginas a imagen para el OCR.
+pymupdf>=1.24.0
+
+# Manejo de imágenes JPG/PNG.
+pillow>=10.0.0
+
+# Puente de Python hacia Tesseract OCR (necesita el programa Tesseract).
+pytesseract>=0.3.10
+
+# Exportar reportes a Excel y leer libros auxiliares .xlsx.
+openpyxl>=3.1.0

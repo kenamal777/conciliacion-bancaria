@@ -1,0 +1,8 @@
+Fecha;Comprobante;Descripcion;Debito;Credito
+03/03/2025;RC-001;Consignacion cliente ABC factura 1023;3.200.000,00;
+05/03/2025;CE-045;Pago nomina marzo primera quincena;;2.300.000,00
+08/03/2025;CE-046;Retiro para caja menor;;500.000,00
+12/03/2025;CE-047;Pago proveedor XYZ LTDA;;1.150.000,00
+20/03/2025;RC-002;Consignacion cliente DEF factura 1031;1.800.000,00;
+28/03/2025;CE-048;Pago servicios publicos EPM;;420.350,00
+30/03/2025;CE-049;Cheque 0004890 proveedor ABC materiales;;750.000,00

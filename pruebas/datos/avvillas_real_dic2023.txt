@@ -1,0 +1,33 @@
+Banco AV Villas                                                    ESTADO DE CUENTA
+                                                                   RENTAVILLAS
+
+SOLUCIONES LABORALES HORIZONTE                 PERIODO   2023/12/01 A 2023/12/31
+                                               PAGINA    1
+                                               CUENTA/DEPOSITO No. 059-01108-0
+                                               PAQUETE                NO APLICA
+                                               TRANSACCIONAL
+                                               OFICINA        BANCA EMPRESARIAL
+
+                              TOTALES DEL PERIODO
+
+MOVIMIENTO RESUMEN                             SALDO PROMEDIO Y CUPO SOBREGIRO
+Saldo inicial:            7,954,713.11         Saldo promedio periodo: 8,149,222.10
++ Movimiento credito:    12,584,726.01         Cupo de sobregiro:              0.00
+- Movimiento debito:     17,662,416.26
+Saldo final periodo:      2,877,022.86
+
+
+FECHA        DESCRIPCION TRANSACCION                                        VALOR
+2023/12/01   CRE TRANSF ACH 000901543211 BANCOLOMBIA                 1,168,000.00
+2023/12/01   CRE PAGO PROVEEDOR OI 00830003790 AV VILLAS NOVD        3,232,000.00
+2023/12/01   DEB PAGO NOMINA NOVD AUTOM.SISTEMAS                     4,190,500.00
+2023/12/01   COMISION SERVICIO NOMINA TERM. EMPRES 20231201             19,500.00
+2023/12/01   NOTA DEBITO IMPUESTO FINANCIERO 4X1000                     16,762.00
+2023/12/01   NOTA DEBITO I.V.A.                                          3,705.00
+2023/12/04   CRE TRANSF INTERNET 000033391616 BANCO DE BOGOTA         3,890,000.00
+2023/12/04   DEB PAGO NOMINA NOVD AUTOM.SISTEMAS                     5,660,000.00
+
+FECHA        MOVIMIENTO DIARIO                                              VALOR
+2023/12/05   CRE TRANSF ACH 000850085732 BANCOLOMBIA                 2,294,726.01
+2023/12/06   CRE PAGO PROVEEDOR OI 00830003584 AV VILLAS NOVD        2,000,000.00
+2023/12/06   DEB PAGO NOMINA NOVD AUTOM.SISTEMAS                     7,771,949.26

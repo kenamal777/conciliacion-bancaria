@@ -1,0 +1,55 @@
+AQUI APARECEN LOS REPORTES
+==========================
+
+No tiene que hacer nada en esta carpeta: los archivos se crean solos cada
+vez que ejecuta CONCILIAR.bat. Llevan la fecha y hora adelante, asi que
+nunca se sobreescribe un reporte anterior.
+
+
+QUE ARCHIVOS SE GENERAN
+-----------------------
+
+  ..._conciliacion.xlsx      El Excel, con cuatro hojas:
+
+        Resumen mensual      Un renglon por banco, cuenta y mes:
+                             saldo inicial, ingresos, egresos, neto,
+                             saldo final y el cuadre.
+        Totales por banco    El acumulado del periodo consultado.
+        Movimientos          El detalle de cada movimiento leido.
+        Archivos leidos      Que se leyo de cada archivo y las
+                             advertencias, para auditoria.
+
+  ..._resumen_mensual.csv    El resumen mensual, por si prefiere CSV.
+  ..._movimientos.csv        El detalle, por si prefiere CSV.
+
+Los CSV se generan siempre. El Excel necesita un componente extra: si no
+aparece, ejecute INSTALAR.bat una vez.
+
+
+LA COLUMNA "CUADRE" ES LA IMPORTANTE
+------------------------------------
+
+Es el control de calidad de la lectura. Significa:
+
+  OK             Saldo inicial + ingresos - egresos da EXACTAMENTE el saldo
+                 final que reporta el banco. La lectura esta completa y
+                 puede confiar en las cifras.
+
+  DIF 45.000     Falta o sobra algo por ese valor. Casi siempre es porque
+                 se cargo un extracto incompleto (una sola pagina).
+
+  s/saldos       El extracto no imprime saldos, asi que no hay forma de
+                 verificarlo con aritmetica. En esos casos el programa
+                 valida contra los totales que trae el propio extracto.
+
+  s/verificar    El saldo inicial se despejo restando los movimientos, de
+                 modo que el cuadre daria cero por construccion y no
+                 probaria nada. Se avisa para no dar falsa confianza.
+
+
+ABRIR LOS CSV EN EXCEL
+----------------------
+Los CSV usan punto y coma (;) como separador y el formato de numeros
+colombiano, que es lo que espera Excel en espanol. Con doble clic deberian
+abrir bien. Si le quedan todas las columnas pegadas en una sola, use
+Datos > Texto en columnas > Delimitado > Punto y coma.

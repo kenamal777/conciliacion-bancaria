@@ -1,0 +1,121 @@
+===================================================================
+  CONCILIACION BANCARIA
+  Bancolombia - Nequi - AV Villas - Banco de Bogota
+===================================================================
+
+Lee los extractos del banco en PDF, JPG o PNG y entrega el resumen
+mensual por banco, con filtros por cualquier periodo de tiempo.
+
+
+-------------------------------------------------------------------
+  PRIMERA VEZ (una sola vez)
+-------------------------------------------------------------------
+
+PASO 1. Instalar Python
+
+  Python no viene con Windows. Es gratis.
+
+    a) Abra:  https://www.python.org/downloads/
+    b) Descargue la version para Windows y ejecute el instalador.
+    c) IMPORTANTE: en la PRIMERA pantalla del instalador, marque abajo
+       la casilla  "Add python.exe to PATH".
+       Es el paso que mas se olvida, y sin el esto no funciona.
+    d) Presione "Install Now" y espere a que termine.
+
+PASO 2. Instalar los componentes
+
+  Haga doble clic en:   INSTALAR.bat
+
+  Espere a que termine y cierre la ventana. Esto agrega la lectura
+  precisa de PDF y la exportacion a Excel.
+
+  (Si falla por falta de internet no es grave: el programa funciona
+  igual, solo que genera CSV en vez de Excel.)
+
+
+-------------------------------------------------------------------
+  USO DIARIO
+-------------------------------------------------------------------
+
+PASO 1. Copie los extractos en la carpeta:   1-EXTRACTOS
+
+        Puede mezclar bancos, meses y cuentas. El programa reconoce
+        cada banco solo.
+
+PASO 2. Haga doble clic en:   CONCILIAR.bat
+
+PASO 3. Escoja en el menu que periodo quiere:
+
+          [1] Todo lo que haya en la carpeta
+          [2] Un mes en particular          (ej: 2025-03 o marzo 2025)
+          [3] Un rango de fechas            (ej: 01/01/2025 a 30/06/2025)
+          [4] Un ano completo
+          [5] Ver el detalle de movimientos
+          [6] Revisar un extracto que no se leyo bien
+          [7] Ver que componentes estan instalados
+
+PASO 4. Los reportes le quedan en la carpeta:   2-REPORTES
+
+        El programa le ofrece abrirla al terminar.
+
+
+-------------------------------------------------------------------
+  LO MAS IMPORTANTE QUE DEBE MIRAR
+-------------------------------------------------------------------
+
+En el resumen hay una columna llamada CUADRE. Es el control de
+calidad de la lectura:
+
+  OK          El saldo inicial mas los ingresos menos los egresos da
+              EXACTAMENTE el saldo final que reporta el banco. Es
+              decir: no se quedo ningun movimiento sin leer y puede
+              confiar en las cifras.
+
+  DIF 45.000  Falta o sobra algo por ese valor. Lo mas comun es haber
+              cargado un extracto incompleto (una sola pagina).
+
+Al final del proceso el programa le dice en una frase si puede
+confiar en los numeros o que debe revisar. No le va a entregar un
+resultado equivocado en silencio.
+
+
+-------------------------------------------------------------------
+  FOTOS Y PDF ESCANEADOS (opcional)
+-------------------------------------------------------------------
+
+Para leer JPG, PNG o PDF escaneados hace falta un programa adicional
+llamado Tesseract OCR:
+
+    https://github.com/UB-Mannheim/tesseract/wiki
+
+Durante su instalacion marque el idioma "Spanish".
+
+Para extractos en PDF normales (los que descarga de la sucursal
+virtual) NO hace falta: esos se leen directo y con mayor exactitud.
+Prefiera siempre el PDF a la foto.
+
+
+-------------------------------------------------------------------
+  PRIVACIDAD
+-------------------------------------------------------------------
+
+El programa trabaja 100% en su computador. No envia sus extractos ni
+sus cifras a internet.
+
+
+-------------------------------------------------------------------
+  SI ALGO NO FUNCIONA
+-------------------------------------------------------------------
+
+  - Si dice que falta Python: repita el PASO 1 y verifique que marco
+    la casilla "Add python.exe to PATH".
+
+  - Si un extracto no se lee bien: use la opcion [6] del menu sobre
+    ese archivo. Le muestra exactamente que esta leyendo el programa.
+    Comparta ese reporte para poder ajustar la lectura de ese formato.
+
+  - Si un mes no cuadra: revise que el extracto de ese mes este
+    completo (todas las paginas).
+
+
+Documentacion tecnica completa: README.md

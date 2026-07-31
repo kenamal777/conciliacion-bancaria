@@ -1,0 +1,47 @@
+AQUI VAN LOS EXTRACTOS DEL BANCO
+================================
+
+Copie en esta carpeta los extractos que quiere conciliar.
+
+QUE PUEDE PONER
+---------------
+  - PDF  (lo mejor: es lo que descarga de la sucursal virtual)
+  - JPG o PNG (fotos o capturas de pantalla)
+
+Puede mezclar todo sin orden:
+  - Varios bancos juntos (Bancolombia, Nequi, AV Villas, Banco de Bogota).
+    El programa reconoce cada banco solo.
+  - Varios meses juntos. El programa los separa por mes.
+  - Varias cuentas del mismo banco.
+
+Tambien puede organizarlos en subcarpetas si le sirve (por ejemplo una
+carpeta por banco o por ano); el programa busca dentro de todas.
+
+
+RECOMENDACIONES
+---------------
+  1. Prefiera SIEMPRE el PDF a la foto. Un PDF se lee exacto; una foto
+     se lee con reconocimiento de imagen y puede confundir cifras.
+
+  2. Descargue el extracto COMPLETO del mes, no una sola pagina. Si carga
+     una pagina suelta, el programa le avisara que el saldo no cuadra
+     (porque le faltan movimientos), lo cual es correcto.
+
+  3. Si va a usar fotos: que salgan derechas, con buena luz, sin sombras
+     ni dedos encima, y que se alcance a leer cada cifra.
+
+  4. Para leer fotos o PDF escaneados hace falta instalar Tesseract OCR.
+     Para PDF normales NO hace falta nada.
+
+
+LISTO?
+------
+Vuelva a la carpeta anterior y haga doble clic en CONCILIAR.bat
+
+
+NOTA DE PRIVACIDAD
+------------------
+Sus extractos NO salen de su computador: el programa trabaja localmente,
+sin enviar nada a internet. Y si sube este proyecto a un repositorio, el
+archivo .gitignore esta configurado para que los extractos de esta carpeta
+nunca se suban por accidente.

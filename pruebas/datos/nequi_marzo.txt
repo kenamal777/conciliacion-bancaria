@@ -1,0 +1,19 @@
+Nequi
+Tu plata en Nequi
+Numero Nequi: 3001234567
+Movimientos del 01/03/2025 al 31/03/2025
+
+Plata disponible                    $ 1.250.000
+
+Fecha                  Descripcion                              Valor
+02 de marzo de 2025    Recibiste de JUAN PEREZ GOMEZ            $ 250.000
+05 de marzo de 2025    Envio de dinero a MARIA LOPEZ            -$ 80.000
+09 de marzo de 2025    Pagaste en SUPERMERCADO EXITO            -$ 156.400
+14 de marzo de 2025    Recarga desde Bancolombia                $ 500.000
+18 de marzo de 2025    Pago PSE FACTURA CLARO                   -$ 89.900
+22 de marzo de 2025    Recibiste de VENTAS TIENDA               $ 340.000
+27 de marzo de 2025    Sacaste plata en corresponsal            -$ 200.000
+30 de marzo de 2025    Cobro cuota de manejo                    -$ 3.700
+
+Entradas                                                        $ 1.090.000
+Salidas                                                         $ 530.000

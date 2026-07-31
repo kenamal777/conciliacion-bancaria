@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# --------------------------------------------------------------------------
+# DATOS BANCARIOS: nunca se suben al repositorio.
+# Se conservan solo las carpetas y sus instrucciones.
+# --------------------------------------------------------------------------
+1-EXTRACTOS/*
+!1-EXTRACTOS/LEEME.txt
+2-REPORTES/*
+!2-REPORTES/LEEME.txt
+
+# Otras carpetas de trabajo que puede crear el usuario.
+extractos/
+reportes/
+salida/
+
+# Extractos y reportes sueltos en cualquier parte del proyecto.
+*.xlsx
+*.pdf
+*.jpg
+*.jpeg
+*.png
+# ...salvo los datos de prueba, que son inventados y sí deben viajar.
+!pruebas/datos/**
