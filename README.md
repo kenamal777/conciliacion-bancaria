@@ -133,6 +133,30 @@ python -m conciliacion resumen extractos/ --desde 01/04/2025 --hasta 15/04/2025
 Otros filtros: `--solo-banco nequi` (se puede repetir), `--cuenta 456789`,
 `--contiene consignacion`.
 
+### Por banco individualmente y en conjunto
+
+Con varios bancos en la misma carpeta, `--por-banco` genera en una sola pasada
+el informe consolidado **más** uno independiente por cada banco:
+
+```bash
+python -m conciliacion resumen extractos/ --por-banco --salida reportes/
+python -m conciliacion informe extractos/ --por-banco --mes 2025-03
+```
+
+Los archivos llevan el nombre del banco, así que no se sobreescriben:
+
+```
+20260801_1105_CONSOLIDADO_conciliacion.xlsx
+20260801_1105_Bancolombia_conciliacion.xlsx
+20260801_1105_Nequi_conciliacion.xlsx
+20260801_1105_Banco_de_Bogota_conciliacion.xlsx
+```
+
+Se combina con cualquier filtro de periodo. Para un solo banco basta
+`--solo-banco bancolombia`, y con un único banco en la carpeta la opción se
+ignora para no duplicar el informe. En el asistente de Windows la pregunta
+aparece sola cuando detecta más de un banco.
+
 ### Exportar a Excel y CSV
 
 ```bash
@@ -352,7 +376,7 @@ conciliacion/
     texto.py            Elige el motor de lectura (PDF, OCR)
     pdf_basico.py       Lector de PDF propio, sin dependencias
 pruebas/
-  probar_todo.py        216 verificaciones de extremo a extremo
+  probar_todo.py        229 verificaciones de extremo a extremo
   util_pdf.py           Genera PDF de prueba
   datos/                Extractos de ejemplo de los cuatro bancos
     *_real_*.txt        Réplicas de extractos reales (las que importan)
@@ -364,7 +388,7 @@ pruebas/
 python pruebas/probar_todo.py
 ```
 
-216 verificaciones sobre réplicas fieles de extractos reales de los cuatro
+229 verificaciones sobre réplicas fieles de extractos reales de los cuatro
 bancos, con cifras que deben cuadrar al centavo. Cubren la normalización, la
 detección de banco, el orden invertido de Nequi, los montos dentro de la
 descripción de Banco de Bogotá, el `CRE`/`DEB` de AV Villas, los resúmenes y

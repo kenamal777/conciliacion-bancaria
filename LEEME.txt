@@ -44,7 +44,9 @@ PASO 1. Copie los extractos en la carpeta:   1-EXTRACTOS
 
 PASO 2. Haga doble clic en:   CONCILIAR.bat
 
-PASO 3. Escoja en el menu que periodo quiere:
+PASO 3. Escoja en el menu que periodo quiere.
+        Si hay varios bancos, el programa le pregunta despues como los
+        quiere (ver la seccion "VARIOS BANCOS" mas abajo).
 
           [1] Todo lo que haya en la carpeta
           [2] Un mes en particular          (ej: 2025-03 o marzo 2025)
@@ -59,6 +61,40 @@ PASO 3. Escoja en el menu que periodo quiere:
 PASO 4. Los reportes le quedan en la carpeta:   2-REPORTES
 
         El programa le ofrece abrirla al terminar.
+
+
+-------------------------------------------------------------------
+  VARIOS BANCOS: junto o por separado
+-------------------------------------------------------------------
+
+Si mete extractos de varios bancos en la misma carpeta, el programa
+los reconoce solos y le pregunta como quiere el informe:
+
+    Hay movimientos de varios bancos. ¿Como quiere el informe?
+
+      [1] Solo Banco AV Villas  (11 movimientos)
+      [2] Solo Banco de Bogota  (14 movimientos)
+      [3] Solo Bancolombia      (6 movimientos)
+      [4] Solo Nequi            (15 movimientos)
+
+      [T] Todos juntos, en un solo informe consolidado
+      [S] Cada banco por separado, mas el consolidado
+
+    Opcion (ENTER = todos juntos):
+
+Con la opcion [S] hace todo de una sola pasada: le deja el informe
+consolidado MAS un informe y un Excel independiente por cada banco.
+Los archivos llevan el nombre del banco, asi que no se pisan:
+
+    20260801_1105_CONSOLIDADO_conciliacion.xlsx
+    20260801_1105_Bancolombia_conciliacion.xlsx
+    20260801_1105_Nequi_conciliacion.xlsx
+    20260801_1105_Banco_de_Bogota_conciliacion.xlsx
+    20260801_1105_Banco_AV_Villas_conciliacion.xlsx
+
+Esto se combina con el periodo: puede pedir, por ejemplo, marzo de
+2025 de cada banco por separado. Y con un solo banco en la carpeta la
+pregunta no aparece, para no estorbar.
 
 
 -------------------------------------------------------------------

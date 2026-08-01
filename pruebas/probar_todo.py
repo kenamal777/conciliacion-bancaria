@@ -558,6 +558,102 @@ def probar_clasificacion() -> None:
     clasificar(movimientos)
 
 
+def probar_por_banco(extractos: list) -> None:
+    """Informes por banco individualmente y en conjunto."""
+    print("\n[5c] Separación por banco")
+    import argparse
+
+    from conciliacion.cli import _grupos_de_bancos
+    from conciliacion.reportes import (
+        CAMPOS_RESUMEN,
+        etiqueta_archivo,
+        exportar,
+        filas_resumen,
+    )
+
+    consolidado = unificar(extractos)
+    movimientos = consolidado.movimientos
+    bancos = sorted({m.banco for m in movimientos})
+    igual(len(bancos), 4, "los cuatro bancos quedan separados")
+
+    # Invariante: partir por banco no puede perder ni duplicar plata.
+    suma_ingresos = dec("0")
+    suma_egresos = dec("0")
+    suma_movimientos = 0
+    for banco in bancos:
+        del_banco = [m for m in movimientos if m.banco == banco]
+        suma_ingresos += sum((m.ingreso for m in del_banco), dec("0"))
+        suma_egresos += sum((m.egreso for m in del_banco), dec("0"))
+        suma_movimientos += len(del_banco)
+    igual(
+        suma_ingresos,
+        sum((m.ingreso for m in movimientos), dec("0")),
+        "los ingresos de cada banco suman el consolidado",
+    )
+    igual(
+        suma_egresos,
+        sum((m.egreso for m in movimientos), dec("0")),
+        "los egresos de cada banco suman el consolidado",
+    )
+    igual(suma_movimientos, len(movimientos), "ningún movimiento se pierde al separar")
+
+    # Sin --por-banco sale un solo informe; con la opción, el consolidado más uno
+    # por banco.
+    sin_separar = argparse.Namespace(por_banco=False)
+    igual(len(_grupos_de_bancos(movimientos, sin_separar)), 1, "un solo informe")
+    separado = argparse.Namespace(por_banco=True)
+    grupos = _grupos_de_bancos(movimientos, separado)
+    igual(len(grupos), 5, "consolidado más un informe por banco")
+    igual(grupos[0][0], "CONSOLIDADO", "el primero es el consolidado")
+    igual(
+        len(grupos[0][1]),
+        len(movimientos),
+        "el consolidado lleva todos los movimientos",
+    )
+
+    # Con un solo banco no tiene sentido separar.
+    de_uno = [m for m in movimientos if m.banco == "Nequi"]
+    igual(
+        len(_grupos_de_bancos(de_uno, separado)),
+        1,
+        "con un solo banco no se duplica el informe",
+    )
+
+    # Nombres de archivo válidos en Windows.
+    igual(
+        etiqueta_archivo("Banco de Bogotá"),
+        "Banco_de_Bogota",
+        "el nombre del banco se vuelve un nombre de archivo válido",
+    )
+    igual(etiqueta_archivo("Banco AV Villas"), "Banco_AV_Villas", "sin espacios")
+
+    # Los archivos de cada banco no se sobreescriben entre sí.
+    carpeta = tempfile.mkdtemp(prefix="conciliacion_bancos_")
+    try:
+        for etiqueta, del_grupo in grupos:
+            resumenes = resumen_mensual(del_grupo, consolidado.extractos)
+            exportar(
+                carpeta,
+                consolidado=unificar([]),
+                resumenes=resumenes,
+                totales=totales_por_banco(del_grupo, resumenes),
+                formatos=["csv"],
+                prefijo=f"prueba_{etiqueta_archivo(etiqueta)}",
+            )
+        generados = sorted(os.listdir(carpeta))
+        igual(
+            len([g for g in generados if g.endswith("_resumen_mensual.csv")]),
+            5,
+            "cada banco deja su propio archivo de resumen",
+        )
+        revisar(
+            any("Banco_de_Bogota" in g for g in generados),
+            "el archivo lleva el nombre del banco",
+        )
+    finally:
+        shutil.rmtree(carpeta, ignore_errors=True)
+
+
 def probar_duplicados(extractos: list) -> None:
     print("\n[6] Descarte de extractos traslapados")
     doble = unificar(extractos + extractos)
@@ -714,6 +810,7 @@ def main() -> int:
     probar_pdf_reales()
     probar_resumen_y_filtros(extractos)
     probar_clasificacion()
+    probar_por_banco(extractos)
     probar_duplicados(extractos)
     probar_cambio_de_anio()
     probar_conciliacion()

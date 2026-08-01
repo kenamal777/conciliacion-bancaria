@@ -16,7 +16,7 @@ import os
 import re
 import sys
 import traceback
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 
 CARPETA_BASE = os.path.dirname(os.path.abspath(__file__))
@@ -193,6 +193,51 @@ def explicar_carpeta_vacia() -> None:
 # Proceso principal
 # ---------------------------------------------------------------------------
 
+def encabezado_banco(etiqueta: str) -> str:
+    borde = "#" * ANCHO
+    return f"\n\n{borde}\n#  {etiqueta.upper()}\n{borde}"
+
+
+def elegir_grupos(movimientos: list) -> list[tuple[str, list]]:
+    """Pregunta si el informe se hace junto, de un banco, o de cada uno aparte.
+
+    Solo pregunta cuando hay más de un banco: si solo hay uno, la pregunta
+    sobra y sería una molestia.
+    """
+    bancos = sorted({m.banco for m in movimientos})
+    if len(bancos) < 2:
+        return [("", movimientos)]
+
+    print()
+    linea("-")
+    print("  Hay movimientos de varios bancos. ¿Cómo quiere el informe?\n")
+    for numero, banco in enumerate(bancos, start=1):
+        cantidad = sum(1 for m in movimientos if m.banco == banco)
+        print(f"    [{numero}] Solo {banco}  ({cantidad} movimientos)")
+    print("""
+    [T] Todos juntos, en un solo informe consolidado
+    [S] Cada banco por separado, más el consolidado
+""")
+
+    respuesta = preguntar("  Opción (ENTER = todos juntos): ").strip().upper()
+
+    if respuesta in ("", "T"):
+        return [("", movimientos)]
+
+    if respuesta == "S":
+        grupos: list[tuple[str, list]] = [("CONSOLIDADO", movimientos)]
+        for banco in bancos:
+            grupos.append((banco, [m for m in movimientos if m.banco == banco]))
+        return grupos
+
+    if respuesta.isdigit() and 1 <= int(respuesta) <= len(bancos):
+        banco = bancos[int(respuesta) - 1]
+        return [(banco, [m for m in movimientos if m.banco == banco])]
+
+    print("\n  No entendí la opción: se hace el informe de todos juntos.")
+    return [("", movimientos)]
+
+
 def clasificar_movimientos(movimientos: list) -> None:
     """Deduce concepto y tercero, aplicando las reglas propias del usuario."""
     from conciliacion.clasificacion import cargar_reglas, clasificar
@@ -305,6 +350,7 @@ def conciliar(
     con_informe: bool = False,
 ) -> None:
     from conciliacion.reportes import (
+        etiqueta_archivo,
         exportar,
         reporte_advertencias,
         reporte_lectura,
@@ -351,8 +397,6 @@ def conciliar(
         return
 
     clasificar_movimientos(movimientos)
-    resumenes = resumen_mensual(movimientos, consolidado.extractos)
-    totales = totales_por_banco(movimientos, resumenes)
 
     titulo("ARCHIVOS PROCESADOS")
     print(reporte_lectura(consolidado))
@@ -362,32 +406,67 @@ def conciliar(
         titulo("PUNTOS A REVISAR")
         print(advertencias)
 
-    titulo("RESUMEN MENSUAL POR BANCO")
-    print(reporte_resumen_mensual(resumenes))
+    grupos = elegir_grupos(movimientos)
 
-    titulo("TOTALES POR BANCO EN EL PERIODO")
-    print(reporte_totales_banco(totales))
+    os.makedirs(CARPETA_REPORTES, exist_ok=True)
+    marca = datetime.now().strftime("%Y%m%d_%H%M")
+    generados: list[str] = []
+    resumenes_todos = resumen_mensual(movimientos, consolidado.extractos)
 
-    if len({r.banco for r in resumenes}) > 1:
-        titulo("CONSOLIDADO MES A MES (TODOS LOS BANCOS)")
-        print(reporte_mensual_consolidado(resumenes))
+    for etiqueta, del_grupo in grupos:
+        if etiqueta:
+            print(encabezado_banco(etiqueta))
 
-    if con_informe:
-        from conciliacion.reportes import (
-            reporte_concepto_y_tercero,
-            reporte_por_concepto,
-            reporte_terceros,
+        resumenes = resumen_mensual(del_grupo, consolidado.extractos)
+        totales = totales_por_banco(del_grupo, resumenes)
+
+        titulo("RESUMEN MENSUAL POR BANCO")
+        print(reporte_resumen_mensual(resumenes))
+
+        titulo("TOTALES POR BANCO EN EL PERIODO")
+        print(reporte_totales_banco(totales))
+
+        if len({r.banco for r in resumenes}) > 1:
+            titulo("CONSOLIDADO MES A MES (TODOS LOS BANCOS)")
+            print(reporte_mensual_consolidado(resumenes))
+
+        if con_informe:
+            from conciliacion.reportes import (
+                reporte_concepto_y_tercero,
+                reporte_por_concepto,
+                reporte_terceros,
+            )
+
+            titulo("EN QUÉ SE FUE LA PLATA (POR CONCEPTO)")
+            print(reporte_por_concepto(del_grupo))
+
+            titulo("DETALLE POR CONCEPTO Y TERCERO")
+            print(reporte_concepto_y_tercero(del_grupo))
+
+            titulo("CONSOLIDADO POR TERCERO")
+            print(reporte_terceros(del_grupo, limite=40))
+
+        if con_detalle:
+            titulo("DETALLE DE MOVIMIENTOS")
+            print(reporte_movimientos(del_grupo))
+
+        generados.extend(
+            exportar(
+                CARPETA_REPORTES,
+                consolidado=Consolidado(
+                    movimientos=del_grupo,
+                    extractos=consolidado.extractos,
+                    duplicados=consolidado.duplicados,
+                    errores=consolidado.errores,
+                ),
+                resumenes=resumenes,
+                totales=totales,
+                formatos=["csv", "xlsx"],
+                prefijo=f"{marca}_{etiqueta_archivo(etiqueta)}" if etiqueta else marca,
+            )
         )
 
-        titulo("EN QUÉ SE FUE LA PLATA (POR CONCEPTO)")
-        print(reporte_por_concepto(movimientos))
-
-        titulo("DETALLE POR CONCEPTO Y TERCERO")
-        print(reporte_concepto_y_tercero(movimientos))
-
-        titulo("CONSOLIDADO POR TERCERO")
-        print(reporte_terceros(movimientos, limite=40))
-
+    if con_informe:
         print(f"""
   ¿Un tercero quedó con el nombre incompleto, o un movimiento en el concepto
   equivocado? Se corrige en este archivo, y desde ahí el programa lo respeta:
@@ -398,27 +477,7 @@ def conciliar(
       texto que aparece en el extracto;nombre del tercero;concepto
 """)
 
-    if con_detalle:
-        titulo("DETALLE DE MOVIMIENTOS")
-        print(reporte_movimientos(movimientos))
-
-    veredicto(resumenes, consolidado)
-
-    # Archivos de salida
-    os.makedirs(CARPETA_REPORTES, exist_ok=True)
-    filtrado = Consolidado(
-        movimientos=movimientos,
-        extractos=consolidado.extractos,
-        duplicados=consolidado.duplicados,
-        errores=consolidado.errores,
-    )
-    generados = exportar(
-        CARPETA_REPORTES,
-        consolidado=filtrado,
-        resumenes=resumenes,
-        totales=totales,
-        formatos=["csv", "xlsx"],
-    )
+    veredicto(resumenes_todos, consolidado)
 
     titulo("ARCHIVOS GENERADOS")
     for ruta in generados:

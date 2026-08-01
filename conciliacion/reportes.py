@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import os
+import re
 from datetime import datetime
 from decimal import Decimal
 
@@ -391,6 +392,19 @@ def reporte_advertencias(consolidado: Consolidado) -> str:
 # ---------------------------------------------------------------------------
 # Archivos de salida
 # ---------------------------------------------------------------------------
+
+def etiqueta_archivo(texto: str) -> str:
+    """Convierte un nombre en algo válido para un archivo de Windows.
+
+    "Banco de Bogotá" -> "Banco_de_Bogota"
+    """
+    from .normalizacion import sin_acentos
+
+    limpio = sin_acentos(texto or "").strip()
+    limpio = re.sub(r"[^\w\s-]", "", limpio)
+    limpio = re.sub(r"\s+", "_", limpio)
+    return limpio or "sin_nombre"
+
 
 def _valor_csv(valor: object) -> object:
     """Los decimales se escriben con coma para que Excel en español los lea."""
