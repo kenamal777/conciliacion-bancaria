@@ -443,6 +443,121 @@ def probar_resumen_y_filtros(extractos: list) -> None:
     )
 
 
+def probar_clasificacion() -> None:
+    """Concepto y tercero: en qué se fue la plata y con quién."""
+    print("\n[5b] Clasificación por concepto y por tercero")
+    from conciliacion.clasificacion import (
+        cargar_reglas,
+        clasificar,
+        por_concepto,
+        por_tercero,
+    )
+
+    movimientos = []
+    for nombre in sorted(os.listdir(DATOS)):
+        if "_real_" in nombre and nombre.endswith(".txt"):
+            movimientos.extend(
+                analizar_archivo(os.path.join(DATOS, nombre)).movimientos
+            )
+    clasificar(movimientos)
+
+    por_descripcion = {m.descripcion: m for m in movimientos}
+
+    def revisar_caso(fragmento: str, concepto: str, tercero: str) -> None:
+        encontrados = [
+            m for d, m in por_descripcion.items() if fragmento.lower() in d.lower()
+        ]
+        if not encontrados:
+            revisar(False, f"no se encontró un movimiento con '{fragmento}'")
+            return
+        movimiento = encontrados[0]
+        igual(movimiento.concepto, concepto, f"'{fragmento[:28]}' -> concepto")
+        igual(movimiento.tercero, tercero, f"'{fragmento[:28]}' -> tercero")
+
+    # Casos tomados de los extractos reales.
+    revisar_caso("NOTA DEBITO I.V.A", "IVA", "(el propio banco)")
+    revisar_caso("IMPUESTO FINANCIERO 4X1000", "GMF (4x1000)", "(el propio banco)")
+    revisar_caso("Gravamen al Movimiento", "GMF (4x1000)", "(el propio banco)")
+    revisar_caso(
+        "COMISION SERVICIO NOMINA", "Comisiones y cuotas de manejo",
+        "(el propio banco)",
+    )
+    revisar_caso("DEB PAGO NOMINA", "Nómina", "NOVD AUTOM.SISTEMAS")
+    revisar_caso("PAGO DE PROV SERVIEQUIPOS", "Proveedores", "SERVIEQUIPOS")
+    # La ciudad dentro del nombre del banco no se puede borrar.
+    revisar_caso(
+        "TRANSF INTERNET", "Transferencias recibidas", "BANCO DE BOGOTA",
+    )
+    revisar_caso("CRE TRANSF ACH", "Transferencias recibidas", "BANCOLOMBIA")
+    # Un cargo por consignación fallida es del banco, no de un tercero.
+    revisar_caso(
+        "Cargo omision consignacion", "Cargos y ajustes del banco",
+        "(el propio banco)",
+    )
+    revisar_caso("Intereses Ganados", "Intereses y rendimientos", "(el propio banco)")
+    revisar_caso("Para EDILBERTO", "Transferencias enviadas", "EDILBERTO SAENZ GARCIA")
+
+    # Invariante: los conceptos tienen que sumar exactamente lo mismo que el
+    # resumen. Si un movimiento se perdiera o se contara dos veces, aquí falla.
+    conceptos = por_concepto(movimientos)
+    ingresos_concepto = sum(
+        (f.total for f in conceptos if f.tipo == "INGRESO"), dec("0")
+    )
+    egresos_concepto = sum((f.total for f in conceptos if f.tipo == "EGRESO"), dec("0"))
+    igual(
+        ingresos_concepto,
+        sum((m.ingreso for m in movimientos), dec("0")),
+        "los conceptos suman los mismos ingresos que el resumen",
+    )
+    igual(
+        egresos_concepto,
+        sum((m.egreso for m in movimientos), dec("0")),
+        "los conceptos suman los mismos egresos que el resumen",
+    )
+    igual(
+        sum(f.cantidad for f in conceptos),
+        len(movimientos),
+        "ningún movimiento queda fuera de un concepto",
+    )
+
+    # Unificación de terceros: los cuatro envíos a la misma persona son un solo
+    # tercero, no cuatro.
+    terceros = {f.tercero: f for f in por_tercero(movimientos)}
+    revisar("SONIA BLANCO" in terceros, "agrupa los movimientos de un mismo tercero")
+    if "SONIA BLANCO" in terceros:
+        igual(terceros["SONIA BLANCO"].cantidad, 4, "SONIA BLANCO: 4 movimientos")
+        igual(terceros["SONIA BLANCO"].total, dec("700000.00"), "SONIA BLANCO: total")
+    igual(
+        sum(f.cantidad for f in por_tercero(movimientos)),
+        len(movimientos),
+        "ningún movimiento queda fuera del consolidado por tercero",
+    )
+
+    # Reglas propias del usuario: manda lo que diga el contador.
+    carpeta = tempfile.mkdtemp(prefix="conciliacion_reglas_")
+    try:
+        ruta = os.path.join(carpeta, "terceros.csv")
+        with open(ruta, "w", encoding="utf-8") as archivo:
+            archivo.write("# patron;tercero;concepto\n")
+            archivo.write("SONIA BLANCO;SONIA BLANCO RAMIREZ;Nomina\n")
+        reglas, avisos = cargar_reglas(ruta)
+        igual(len(reglas), 1, "lee las reglas propias del usuario")
+        revisar(bool(avisos), "informa que se aplicaron reglas propias")
+
+        clasificar(movimientos, reglas)
+        sonia = [m for m in movimientos if m.tercero == "SONIA BLANCO RAMIREZ"]
+        igual(len(sonia), 4, "la regla renombra al tercero")
+        revisar(
+            all(m.concepto == "Nomina" for m in sonia),
+            "la regla reclasifica el concepto",
+        )
+    finally:
+        shutil.rmtree(carpeta, ignore_errors=True)
+
+    # Se vuelve a dejar como estaba para no afectar otras pruebas.
+    clasificar(movimientos)
+
+
 def probar_duplicados(extractos: list) -> None:
     print("\n[6] Descarte de extractos traslapados")
     doble = unificar(extractos + extractos)
@@ -598,6 +713,7 @@ def main() -> int:
     probar_formatos_reales()
     probar_pdf_reales()
     probar_resumen_y_filtros(extractos)
+    probar_clasificacion()
     probar_duplicados(extractos)
     probar_cambio_de_anio()
     probar_conciliacion()

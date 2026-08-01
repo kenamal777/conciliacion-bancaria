@@ -13,6 +13,10 @@ env/
 2-REPORTES/*
 !2-REPORTES/LEEME.txt
 
+# Las reglas de terceros son de cada usuario: el programa crea la plantilla
+# en el primer arranque y no conviene sobreescribir lo que el usuario edite.
+terceros.csv
+
 # Otras carpetas de trabajo que puede crear el usuario.
 extractos/
 reportes/

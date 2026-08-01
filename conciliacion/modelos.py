@@ -51,6 +51,9 @@ class Movimiento:
     archivo: str | None = None
     pagina: int | None = None
     linea_original: str = ""
+    # Los llena el módulo de clasificación: en qué se fue la plata y con quién.
+    concepto: str | None = None
+    tercero: str | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.valor, Decimal):
@@ -111,6 +114,8 @@ class Movimiento:
             "fecha": self.fecha.isoformat(),
             "periodo": self.periodo,
             "descripcion": self.descripcion,
+            "concepto": self.concepto or "",
+            "tercero": self.tercero or "",
             "referencia": self.referencia or "",
             "documento": self.documento or "",
             "tipo": self.tipo.value,

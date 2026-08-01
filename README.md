@@ -31,9 +31,10 @@ ConciliacionBancaria/
     [2] Conciliar un mes en particular          (2025-03, 03/2025 o marzo 2025)
     [3] Conciliar un rango de fechas
     [4] Conciliar un año completo
-    [5] Ver el detalle de todos los movimientos
-    [6] Revisar un extracto que no se leyó bien
-    [7] Ver qué componentes están instalados
+    [5] INFORME DETALLADO: en qué se fue la plata y con quién
+    [6] Ver el detalle de todos los movimientos
+    [7] Revisar un extracto que no se leyó bien
+    [8] Ver qué componentes están instalados
 ```
 
 Al terminar, el asistente dice en una frase si se puede confiar en las cifras:
@@ -138,10 +139,62 @@ Otros filtros: `--solo-banco nequi` (se puede repetir), `--cuenta 456789`,
 python -m conciliacion resumen extractos/ --salida reportes/
 ```
 
-Genera el resumen mensual, el detalle de movimientos, los totales por banco y
-la hoja de control de archivos leídos. El Excel requiere `openpyxl`; los CSV
+Genera un Excel con seis hojas (resumen mensual, por concepto, concepto y
+tercero, terceros, movimientos y control de archivos leídos) más los CSV
+equivalentes. El Excel requiere `openpyxl`; los CSV
 salen con `;` y montos en formato colombiano para que Excel en español los abra
 bien.
+
+### Informe detallado por concepto y tercero
+
+```bash
+python -m conciliacion informe extractos/ --mes 2025-03
+```
+
+El resumen mensual dice cuánto entró y cuánto salió. Esto responde en qué se
+fue la plata y con quién se movió:
+
+```
+EGRESOS  (a quién se le pagó)
+Concepto / Tercero             Mov.          Total  % del total  Fechas
+Nómina                            3  17.622.449,26        83,4%
+    NOVD AUTOM.SISTEMAS           3  17.622.449,26               01/12/2023 a 06/12/2023
+Proveedores                       2   2.463.177,00        11,7%
+    SERVIEQUIPOS                  1   1.561.070,00               01/02/2024
+    AGUAS INGENIE                 1     902.107,00               01/02/2024
+GMF (4x1000)                     13      27.583,92         0,1%
+    (el propio banco)            13      27.583,92               02/07/2020 a 02/02/2024
+Comisiones y cuotas de manejo     5      23.097,24         0,1%
+IVA                               2       4.340,04         0,0%
+```
+
+Conceptos que reconoce: IVA, GMF (4x1000), retención en la fuente, comisiones
+y cuotas de manejo, nómina, proveedores, servicios públicos, impuestos,
+seguros, obligaciones financieras, cheques, retiros, compras, transferencias,
+consignaciones, intereses y cargos del banco.
+
+El nombre del tercero se deduce del texto de la descripción, que es lo único
+que da el banco. Un mismo tercero escrito de varias formas se unifica de forma
+conservadora: solo si las palabras de un nombre están contenidas en el otro
+("SERVIEQUIPOS" dentro de "SERVIEQUIPOS INDUSTRIALES"). Unificar de más sería
+peor que de menos, porque juntaría la plata de dos terceros distintos, así que
+el informe siempre muestra cuántas variantes agrupó.
+
+#### Corregir la clasificación: `terceros.csv`
+
+El banco no entrega el concepto ni el tercero en campos aparte, así que
+deducirlos es una heurística. Cuando no acierte, manda el usuario:
+
+```csv
+# patron;tercero;concepto
+SONIA BLANCO;SONIA BLANCO RAMIREZ;Nomina
+SERVIEQUIPOS;SERVIEQUIPOS INDUSTRIALES SAS;Proveedores
+CLIENTE ABC;COMERCIAL ABC LTDA;Consignaciones y recaudos
+```
+
+Gana la primera regla que coincida, no distingue tildes ni mayúsculas, acepta
+expresiones regulares, y las dos últimas columnas son opcionales. Se busca por
+defecto como `terceros.csv` en la carpeta actual, o con `--reglas ruta.csv`.
 
 ### Detalle de movimientos
 
@@ -283,8 +336,11 @@ asistente.py            Menú interactivo en español
 1-EXTRACTOS/            Entrada: los extractos del banco
 2-REPORTES/             Salida: los Excel y CSV generados
 
+terceros.csv            Sus reglas para corregir terceros y conceptos
+
 conciliacion/
   normalizacion.py      Montos y fechas colombianas
+  clasificacion.py      Concepto y tercero de cada movimiento
   modelos.py            Movimiento, Extracto, ResumenMensual
   perfiles.py           Reglas de cada banco (aquí se ajusta lo específico)
   motor.py              Texto -> movimientos, y decisión de ingreso/egreso
@@ -296,7 +352,7 @@ conciliacion/
     texto.py            Elige el motor de lectura (PDF, OCR)
     pdf_basico.py       Lector de PDF propio, sin dependencias
 pruebas/
-  probar_todo.py        183 verificaciones de extremo a extremo
+  probar_todo.py        216 verificaciones de extremo a extremo
   util_pdf.py           Genera PDF de prueba
   datos/                Extractos de ejemplo de los cuatro bancos
     *_real_*.txt        Réplicas de extractos reales (las que importan)
@@ -308,10 +364,12 @@ pruebas/
 python pruebas/probar_todo.py
 ```
 
-183 verificaciones sobre réplicas fieles de extractos reales de los cuatro
+216 verificaciones sobre réplicas fieles de extractos reales de los cuatro
 bancos, con cifras que deben cuadrar al centavo. Cubren la normalización, la
 detección de banco, el orden invertido de Nequi, los montos dentro de la
 descripción de Banco de Bogotá, el `CRE`/`DEB` de AV Villas, los resúmenes y
-filtros por periodo, los duplicados, el cambio de año, la conciliación completa
-y la exportación. Además comprueban que leer el PDF dé exactamente el mismo
+filtros por periodo, los duplicados, el cambio de año, la clasificación por
+concepto y tercero, la conciliación completa y la exportación. Entre ellas hay
+una invariante clave: la suma de todos los conceptos tiene que dar exactamente
+los mismos ingresos y egresos que el resumen mensual. Además comprueban que leer el PDF dé exactamente el mismo
 resultado que leer el texto.

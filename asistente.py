@@ -24,6 +24,9 @@ sys.path.insert(0, CARPETA_BASE)
 
 CARPETA_EXTRACTOS = os.path.join(CARPETA_BASE, "1-EXTRACTOS")
 CARPETA_REPORTES = os.path.join(CARPETA_BASE, "2-REPORTES")
+# Aquí el usuario corrige a mano los terceros y conceptos que el programa no
+# adivine bien.
+RUTA_REGLAS = os.path.join(CARPETA_BASE, "terceros.csv")
 
 ANCHO = 78
 
@@ -91,10 +94,15 @@ MESES_TEXTO = {
 
 
 def leer_mes() -> str | None:
-    """Acepta 2025-03, 03/2025, marzo 2025 o marzo de 2025."""
+    """Pregunta por un mes y lo interpreta."""
     texto = preguntar(
         "\n  Mes a conciliar (ejemplos: 2025-03, 03/2025, marzo 2025): "
     )
+    return interpretar_mes(texto) if texto else None
+
+
+def interpretar_mes(texto: str) -> str | None:
+    """Acepta 2025-03, 03/2025, marzo 2025 o marzo de 2025."""
     if not texto:
         return None
 
@@ -184,6 +192,16 @@ def explicar_carpeta_vacia() -> None:
 # ---------------------------------------------------------------------------
 # Proceso principal
 # ---------------------------------------------------------------------------
+
+def clasificar_movimientos(movimientos: list) -> None:
+    """Deduce concepto y tercero, aplicando las reglas propias del usuario."""
+    from conciliacion.clasificacion import cargar_reglas, clasificar
+
+    reglas, avisos = cargar_reglas(RUTA_REGLAS)
+    for aviso in avisos:
+        print(f"  {aviso}")
+    clasificar(movimientos, reglas)
+
 
 def leer_todos(rutas: list[str]):
     """Lee cada archivo informando el avance, sin abortar por uno malo."""
@@ -284,6 +302,7 @@ def conciliar(
     mes: str | None = None,
     anio: int | None = None,
     con_detalle: bool = False,
+    con_informe: bool = False,
 ) -> None:
     from conciliacion.reportes import (
         exportar,
@@ -331,6 +350,7 @@ def conciliar(
         print(f"  Los extractos que cargó cubren estos meses: {', '.join(disponibles)}")
         return
 
+    clasificar_movimientos(movimientos)
     resumenes = resumen_mensual(movimientos, consolidado.extractos)
     totales = totales_por_banco(movimientos, resumenes)
 
@@ -351,6 +371,32 @@ def conciliar(
     if len({r.banco for r in resumenes}) > 1:
         titulo("CONSOLIDADO MES A MES (TODOS LOS BANCOS)")
         print(reporte_mensual_consolidado(resumenes))
+
+    if con_informe:
+        from conciliacion.reportes import (
+            reporte_concepto_y_tercero,
+            reporte_por_concepto,
+            reporte_terceros,
+        )
+
+        titulo("EN QUÉ SE FUE LA PLATA (POR CONCEPTO)")
+        print(reporte_por_concepto(movimientos))
+
+        titulo("DETALLE POR CONCEPTO Y TERCERO")
+        print(reporte_concepto_y_tercero(movimientos))
+
+        titulo("CONSOLIDADO POR TERCERO")
+        print(reporte_terceros(movimientos, limite=40))
+
+        print(f"""
+  ¿Un tercero quedó con el nombre incompleto, o un movimiento en el concepto
+  equivocado? Se corrige en este archivo, y desde ahí el programa lo respeta:
+
+      {RUTA_REGLAS}
+
+  Se edita con el Bloc de notas o con Excel. Cada línea es:
+      texto que aparece en el extracto;nombre del tercero;concepto
+""")
 
     if con_detalle:
         titulo("DETALLE DE MOVIMIENTOS")
@@ -464,9 +510,12 @@ def menu() -> bool:
     [3] Conciliar un rango de fechas
     [4] Conciliar un año completo
 
-    [5] Ver el detalle de todos los movimientos
-    [6] Revisar un extracto que no se leyó bien
-    [7] Ver qué componentes están instalados
+    [5] INFORME DETALLADO: en qué se fue la plata y con quién
+        (IVA, comisiones, nómina, proveedores, quién consignó...)
+
+    [6] Ver el detalle de todos los movimientos
+    [7] Revisar un extracto que no se leyó bien
+    [8] Ver qué componentes están instalados
 
     [0] Salir
 """)
@@ -492,10 +541,20 @@ def menu() -> bool:
         if anio:
             conciliar(anio=anio)
     elif opcion == "5":
-        conciliar(con_detalle=True)
+        texto = preguntar(
+            "\n  ¿De qué periodo? (ENTER = todo, o escriba un mes como 2025-03): "
+        )
+        if not texto:
+            conciliar(con_informe=True)
+        else:
+            mes = interpretar_mes(texto)
+            if mes:
+                conciliar(mes=mes, con_informe=True)
     elif opcion == "6":
-        revisar_archivo()
+        conciliar(con_detalle=True)
     elif opcion == "7":
+        revisar_archivo()
+    elif opcion == "8":
         revisar_instalacion()
     elif opcion == "0":
         return False
@@ -536,6 +595,9 @@ def main() -> int:
 
     try:
         import conciliacion  # noqa: F401
+        from conciliacion.clasificacion import crear_plantilla_reglas
+
+        crear_plantilla_reglas(RUTA_REGLAS)
     except ImportError:
         print("""
   No encuentro los archivos del programa.

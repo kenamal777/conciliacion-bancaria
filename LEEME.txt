@@ -50,13 +50,78 @@ PASO 3. Escoja en el menu que periodo quiere:
           [2] Un mes en particular          (ej: 2025-03 o marzo 2025)
           [3] Un rango de fechas            (ej: 01/01/2025 a 30/06/2025)
           [4] Un ano completo
-          [5] Ver el detalle de movimientos
-          [6] Revisar un extracto que no se leyo bien
-          [7] Ver que componentes estan instalados
+
+          [5] INFORME DETALLADO: en que se fue la plata y con quien
+          [6] Ver el detalle de movimientos
+          [7] Revisar un extracto que no se leyo bien
+          [8] Ver que componentes estan instalados
 
 PASO 4. Los reportes le quedan en la carpeta:   2-REPORTES
 
         El programa le ofrece abrirla al terminar.
+
+
+-------------------------------------------------------------------
+  INFORME DETALLADO (opcion 5)
+-------------------------------------------------------------------
+
+El resumen mensual dice cuanto entro y cuanto salio. La opcion 5
+responde el resto: EN QUE se fue la plata y CON QUIEN se movio.
+
+Le agrupa los egresos por concepto y dentro de cada concepto le
+abre los terceros:
+
+   EGRESOS  (a quien se le pago)
+   Concepto / Tercero              Mov.          Total   % del total
+   Nomina                             3  17.622.449,26        83,4%
+       NOVD AUTOM.SISTEMAS            3  17.622.449,26
+   Proveedores                        2   2.463.177,00        11,7%
+       SERVIEQUIPOS                   1   1.561.070,00
+       AGUAS INGENIE                  1     902.107,00
+   GMF (4x1000)                      13      27.583,92         0,1%
+       (el propio banco)             13      27.583,92
+   Comisiones y cuotas de manejo      5      23.097,24         0,1%
+   IVA                                2       4.340,04         0,0%
+
+Y en los ingresos le muestra quien consigno o quien transfirio.
+
+Los conceptos que reconoce solo: IVA, GMF (4x1000), retencion en la
+fuente, comisiones y cuotas de manejo, nomina, proveedores, servicios
+publicos, impuestos, seguros, creditos, cheques, retiros, compras,
+transferencias, consignaciones e intereses.
+
+Si un mismo tercero aparece escrito de varias formas, el programa
+los unifica y le avisa cuantas variantes agrupo.
+
+
+-------------------------------------------------------------------
+  CUANDO EL PROGRAMA NO ADIVINE BIEN: terceros.csv
+-------------------------------------------------------------------
+
+El banco no informa el concepto ni el nombre del tercero en campos
+aparte: hay que deducirlos del texto. A veces no acierta, y ahi manda
+usted.
+
+En la carpeta del programa hay un archivo llamado  terceros.csv
+Se abre con el Bloc de notas o con Excel. Cada linea es:
+
+    texto que aparece en el extracto ; nombre del tercero ; concepto
+
+Por ejemplo, si en el extracto de Nequi le sale "SONIA BLANCO" y esa
+persona es una empleada, escriba:
+
+    SONIA BLANCO;SONIA BLANCO RAMIREZ;Nomina
+
+Desde ese momento el programa la muestra con el nombre completo y la
+cuenta dentro de Nomina, no en "Otros egresos".
+
+Reglas:
+  - La primera linea que coincida es la que se aplica: ponga las mas
+    especificas arriba.
+  - No importan las tildes ni las mayusculas.
+  - Las columnas tercero y concepto son opcionales: puede corregir
+    solo una de las dos.
+  - Las lineas que empiezan por # son comentarios.
 
 
 -------------------------------------------------------------------

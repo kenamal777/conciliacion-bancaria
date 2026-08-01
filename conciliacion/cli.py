@@ -140,6 +140,90 @@ def _monto_argumento(texto: str | None) -> Decimal | None:
 # Comandos
 # ---------------------------------------------------------------------------
 
+def _clasificar(movimientos: list, args: argparse.Namespace) -> None:
+    """Deduce concepto y tercero de cada movimiento, con las reglas del usuario."""
+    from .clasificacion import cargar_reglas, clasificar
+
+    ruta = getattr(args, "reglas", None) or "terceros.csv"
+    reglas, avisos = cargar_reglas(ruta)
+    for aviso in avisos:
+        print(f"  {aviso}")
+    clasificar(movimientos, reglas)
+
+
+def comando_informe(args: argparse.Namespace) -> int:
+    """Informe detallado: en qué se fue la plata y con quién."""
+    from .reportes import (
+        reporte_concepto_y_tercero,
+        reporte_por_concepto,
+        reporte_terceros,
+    )
+
+    rutas = expandir_rutas(args.archivos)
+    if not rutas:
+        print("No encontré archivos para procesar.", file=sys.stderr)
+        return 1
+
+    print(_titulo(f"LECTURA DE {len(rutas)} ARCHIVO(S)"))
+    consolidado = leer_extractos(rutas, args)
+    if not consolidado.movimientos:
+        print("\nNo se obtuvo ningún movimiento.", file=sys.stderr)
+        return 2
+
+    desde, hasta = _rango(args)
+    movimientos = filtrar(
+        consolidado.movimientos,
+        desde=desde,
+        hasta=hasta,
+        bancos=args.solo_banco,
+        cuenta=args.cuenta,
+        contiene=args.contiene,
+    )
+    if not movimientos:
+        print("\nSin movimientos en el rango solicitado.", file=sys.stderr)
+        return 2
+
+    _clasificar(movimientos, args)
+
+    print(_titulo(f"RESUMEN POR CONCEPTO  ({_describir_rango(desde, hasta)})"))
+    print(reporte_por_concepto(movimientos))
+
+    print(_titulo("DETALLE POR CONCEPTO Y TERCERO"))
+    print(reporte_concepto_y_tercero(movimientos))
+
+    print(_titulo("CONSOLIDADO POR TERCERO"))
+    print(reporte_terceros(movimientos, limite=args.limite))
+
+    if args.salida:
+        from .reportes import (
+            CAMPOS_CONCEPTO_TERCERO,
+            CAMPOS_TERCEROS,
+            escribir_csv,
+            filas_concepto_tercero,
+            filas_terceros,
+        )
+
+        carpeta = args.salida
+        os.makedirs(carpeta, exist_ok=True)
+        generados = [
+            escribir_csv(
+                os.path.join(carpeta, "por_concepto.csv"),
+                CAMPOS_CONCEPTO_TERCERO,
+                filas_concepto_tercero(movimientos),
+            ),
+            escribir_csv(
+                os.path.join(carpeta, "por_tercero.csv"),
+                CAMPOS_TERCEROS,
+                filas_terceros(movimientos),
+            ),
+        ]
+        print(_titulo("ARCHIVOS GENERADOS"))
+        for ruta in generados:
+            print(f"  {ruta}")
+
+    return 0
+
+
 def comando_resumen(args: argparse.Namespace) -> int:
     rutas = expandir_rutas(args.archivos)
     if not rutas:
@@ -173,6 +257,7 @@ def comando_resumen(args: argparse.Namespace) -> int:
         )
         return 2
 
+    _clasificar(movimientos, args)
     resumenes = resumen_mensual(movimientos, consolidado.extractos)
     totales = totales_por_banco(movimientos, resumenes)
 
@@ -471,6 +556,11 @@ def _agregar_filtros(sub: argparse.ArgumentParser) -> None:
     )
     otros.add_argument("--cuenta", help="Filtrar por número de cuenta (o parte)")
     otros.add_argument("--contiene", help="Filtrar por texto en la descripción")
+    otros.add_argument(
+        "--reglas",
+        help="CSV con reglas propias de tercero y concepto "
+        "(por defecto: terceros.csv)",
+    )
 
 
 def _agregar_lectura(sub: argparse.ArgumentParser) -> None:
@@ -509,6 +599,7 @@ def construir_parser() -> argparse.ArgumentParser:
             "--salida reportes/\n"
             "  python -m conciliacion resumen extractos/ --desde 2025-01-01 "
             "--hasta 2025-06-30\n"
+            "  python -m conciliacion informe extractos/ --mes 2025-03\n"
             "  python -m conciliacion movimientos extractos/ --solo-banco nequi\n"
             "  python -m conciliacion conciliar extractos/ --libro auxiliar.csv\n"
             "  python -m conciliacion diagnostico extracto.pdf --texto\n"
@@ -553,6 +644,23 @@ def construir_parser() -> argparse.ArgumentParser:
     movimientos.add_argument("--limite", type=int, help="Máximo de filas a mostrar")
     movimientos.add_argument("--salida", help="Ruta o carpeta del CSV a generar")
     movimientos.set_defaults(funcion=comando_movimientos)
+
+    informe = subparsers.add_parser(
+        "informe",
+        help="Informe detallado por concepto (IVA, comisiones, nómina...) y tercero",
+        description=(
+            "Muestra en qué se fue la plata y con quién: cada concepto abierto "
+            "por tercero, con los nombres del mismo tercero unificados."
+        ),
+    )
+    informe.add_argument("archivos", nargs="+")
+    _agregar_filtros(informe)
+    _agregar_lectura(informe)
+    informe.add_argument(
+        "--limite", type=int, help="Máximo de terceros a mostrar en el consolidado"
+    )
+    informe.add_argument("--salida", help="Carpeta donde escribir los CSV")
+    informe.set_defaults(funcion=comando_informe)
 
     conciliar_cmd = subparsers.add_parser(
         "conciliar",
