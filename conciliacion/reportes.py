@@ -401,6 +401,10 @@ def etiqueta_archivo(texto: str) -> str:
     from .normalizacion import sin_acentos
 
     limpio = sin_acentos(texto or "").strip()
+    # Si la etiqueta viene de un nombre de archivo, la extensión estorba.
+    limpio = re.sub(
+        r"\.(pdf|jpe?g|png|tiff?|bmp|webp|txt|csv|xlsx?)$", "", limpio, flags=re.I
+    )
     limpio = re.sub(r"[^\w\s-]", "", limpio)
     limpio = re.sub(r"\s+", "_", limpio)
     return limpio or "sin_nombre"

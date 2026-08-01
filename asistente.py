@@ -199,42 +199,55 @@ def encabezado_banco(etiqueta: str) -> str:
 
 
 def elegir_grupos(movimientos: list) -> list[tuple[str, list]]:
-    """Pregunta si el informe se hace junto, de un banco, o de cada uno aparte.
+    """Pregunta de qué forma quiere ver el informe: junto o partido, y por qué.
 
-    Solo pregunta cuando hay más de un banco: si solo hay uno, la pregunta
-    sobra y sería una molestia.
+    Solo pregunta si de verdad hay algo que separar. Con un único banco, un
+    único extracto y un único mes, la pregunta sobraría.
     """
+    from conciliacion.resumen import agrupar_movimientos
+
     bancos = sorted({m.banco for m in movimientos})
-    if len(bancos) < 2:
+    archivos = {os.path.basename(m.archivo or "") for m in movimientos}
+    meses = {m.periodo for m in movimientos}
+
+    if len(bancos) < 2 and len(archivos) < 2 and len(meses) < 2:
         return [("", movimientos)]
 
     print()
     linea("-")
-    print("  Hay movimientos de varios bancos. ¿Cómo quiere el informe?\n")
-    for numero, banco in enumerate(bancos, start=1):
-        cantidad = sum(1 for m in movimientos if m.banco == banco)
-        print(f"    [{numero}] Solo {banco}  ({cantidad} movimientos)")
-    print("""
-    [T] Todos juntos, en un solo informe consolidado
-    [S] Cada banco por separado, más el consolidado
-""")
+    print("  ¿Cómo quiere ver el informe?\n")
+    print("    [T] Todo junto, en un solo informe consolidado")
+    if len(bancos) > 1:
+        print(f"    [B] Por banco: cada uno por separado ({len(bancos)} bancos)")
+    if len(archivos) > 1:
+        print(
+            f"    [E] Por extracto: cada archivo que subió por separado "
+            f"({len(archivos)} archivos)"
+        )
+    if len(meses) > 1:
+        print(f"    [M] Por mes: cada mes por separado ({len(meses)} meses)")
 
-    respuesta = preguntar("  Opción (ENTER = todos juntos): ").strip().upper()
+    if len(bancos) > 1:
+        print("\n    O un solo banco en particular:")
+        for numero, banco in enumerate(bancos, start=1):
+            cantidad = sum(1 for m in movimientos if m.banco == banco)
+            print(f"    [{numero}] Solo {banco}  ({cantidad} movimientos)")
+
+    respuesta = preguntar("\n  Opción (ENTER = todo junto): ").strip().upper()
 
     if respuesta in ("", "T"):
         return [("", movimientos)]
-
-    if respuesta == "S":
-        grupos: list[tuple[str, list]] = [("CONSOLIDADO", movimientos)]
-        for banco in bancos:
-            grupos.append((banco, [m for m in movimientos if m.banco == banco]))
-        return grupos
-
+    if respuesta == "B" and len(bancos) > 1:
+        return agrupar_movimientos(movimientos, "banco")
+    if respuesta == "E" and len(archivos) > 1:
+        return agrupar_movimientos(movimientos, "archivo")
+    if respuesta == "M" and len(meses) > 1:
+        return agrupar_movimientos(movimientos, "mes")
     if respuesta.isdigit() and 1 <= int(respuesta) <= len(bancos):
         banco = bancos[int(respuesta) - 1]
         return [(banco, [m for m in movimientos if m.banco == banco])]
 
-    print("\n  No entendí la opción: se hace el informe de todos juntos.")
+    print("\n  No entendí la opción: se hace el informe de todo junto.")
     return [("", movimientos)]
 
 

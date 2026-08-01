@@ -133,17 +133,26 @@ python -m conciliacion resumen extractos/ --desde 01/04/2025 --hasta 15/04/2025
 Otros filtros: `--solo-banco nequi` (se puede repetir), `--cuenta 456789`,
 `--contiene consignacion`.
 
-### Por banco individualmente y en conjunto
+### Las mismas cifras vistas de distintas formas
 
-Con varios bancos en la misma carpeta, `--por-banco` genera en una sola pasada
-el informe consolidado **más** uno independiente por cada banco:
+`--separar-por` emite, en una sola pasada, el informe consolidado **más** uno
+independiente por cada grupo:
 
 ```bash
-python -m conciliacion resumen extractos/ --por-banco --salida reportes/
-python -m conciliacion informe extractos/ --por-banco --mes 2025-03
+python -m conciliacion resumen extractos/ --separar-por banco    --salida reportes/
+python -m conciliacion resumen extractos/ --separar-por archivo  --salida reportes/
+python -m conciliacion resumen extractos/ --separar-por mes      --salida reportes/
+python -m conciliacion informe extractos/ --separar-por banco --mes 2025-03
 ```
 
-Los archivos llevan el nombre del banco, así que no se sobreescriben:
+| Criterio | Qué produce |
+|---|---|
+| `banco` | Un informe por cada banco |
+| `archivo` | Un informe por cada extracto que se cargó |
+| `mes` | Un informe por cada mes, en orden cronológico |
+| `cuenta` | Un informe por cada cuenta bancaria |
+
+Los archivos llevan la etiqueta del grupo, así que no se sobreescriben:
 
 ```
 20260801_1105_CONSOLIDADO_conciliacion.xlsx
@@ -153,9 +162,9 @@ Los archivos llevan el nombre del banco, así que no se sobreescriben:
 ```
 
 Se combina con cualquier filtro de periodo. Para un solo banco basta
-`--solo-banco bancolombia`, y con un único banco en la carpeta la opción se
-ignora para no duplicar el informe. En el asistente de Windows la pregunta
-aparece sola cuando detecta más de un banco.
+`--solo-banco bancolombia`. Si el criterio deja un único grupo, la separación
+se ignora para no repetir el mismo informe dos veces. En el asistente de
+Windows la pregunta aparece sola cuando hay algo que separar.
 
 ### Exportar a Excel y CSV
 
@@ -376,7 +385,7 @@ conciliacion/
     texto.py            Elige el motor de lectura (PDF, OCR)
     pdf_basico.py       Lector de PDF propio, sin dependencias
 pruebas/
-  probar_todo.py        229 verificaciones de extremo a extremo
+  probar_todo.py        239 verificaciones de extremo a extremo
   util_pdf.py           Genera PDF de prueba
   datos/                Extractos de ejemplo de los cuatro bancos
     *_real_*.txt        Réplicas de extractos reales (las que importan)
@@ -388,7 +397,7 @@ pruebas/
 python pruebas/probar_todo.py
 ```
 
-229 verificaciones sobre réplicas fieles de extractos reales de los cuatro
+239 verificaciones sobre réplicas fieles de extractos reales de los cuatro
 bancos, con cifras que deben cuadrar al centavo. Cubren la normalización, la
 detección de banco, el orden invertido de Nequi, los montos dentro de la
 descripción de Banco de Bogotá, el `CRE`/`DEB` de AV Villas, los resúmenes y

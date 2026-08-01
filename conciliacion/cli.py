@@ -34,7 +34,9 @@ from .reportes import (
     reporte_totales_banco,
 )
 from .resumen import (
+    CRITERIOS,
     Consolidado,
+    agrupar_movimientos,
     filtrar,
     rango_de_periodo,
     resumen_mensual,
@@ -132,22 +134,12 @@ def _encabezado_grupo(etiqueta: str) -> str:
     return f"\n\n{borde}\n#  {etiqueta.upper()}\n{borde}"
 
 
-def _grupos_de_bancos(
-    movimientos: list, args: argparse.Namespace
-) -> list[tuple[str, list]]:
-    """Decide si se emite un solo informe o uno por banco además del conjunto.
-
-    Devuelve pares (etiqueta, movimientos). La etiqueta vacía significa que no
-    hay separación por banco, así que el reporte sale sin encabezado extra.
-    """
-    bancos = sorted({m.banco for m in movimientos})
-    if not getattr(args, "por_banco", False) or len(bancos) < 2:
-        return [("", movimientos)]
-
-    grupos: list[tuple[str, list]] = [("CONSOLIDADO", movimientos)]
-    for banco in bancos:
-        grupos.append((banco, [m for m in movimientos if m.banco == banco]))
-    return grupos
+def _grupos(movimientos: list, args: argparse.Namespace) -> list[tuple[str, list]]:
+    """Decide si el informe sale entero o partido, y por cuál criterio."""
+    criterio = getattr(args, "separar_por", None)
+    if not criterio and getattr(args, "por_banco", False):
+        criterio = "banco"  # opción antigua, se mantiene por comodidad
+    return agrupar_movimientos(movimientos, criterio)
 
 
 def _monto_argumento(texto: str | None) -> Decimal | None:
@@ -209,7 +201,7 @@ def comando_informe(args: argparse.Namespace) -> int:
     _clasificar(movimientos, args)
 
     marca = datetime.now().strftime("%Y%m%d_%H%M")
-    for etiqueta, del_grupo in _grupos_de_bancos(movimientos, args):
+    for etiqueta, del_grupo in _grupos(movimientos, args):
         if etiqueta:
             print(_encabezado_grupo(etiqueta))
 
@@ -297,7 +289,7 @@ def comando_resumen(args: argparse.Namespace) -> int:
         print(advertencias)
 
     marca = args.prefijo or datetime.now().strftime("%Y%m%d_%H%M")
-    for etiqueta, del_grupo in _grupos_de_bancos(movimientos, args):
+    for etiqueta, del_grupo in _grupos(movimientos, args):
         if etiqueta:
             print(_encabezado_grupo(etiqueta))
         _emitir_resumen(
@@ -694,10 +686,15 @@ def construir_parser() -> argparse.ArgumentParser:
         help="Mostrar también el detalle de movimientos (opcional: cuántos)",
     )
     salida.add_argument(
+        "--separar-por",
+        choices=CRITERIOS,
+        help="Además del consolidado, un informe y un juego de archivos por "
+        "cada banco, extracto (archivo), mes o cuenta",
+    )
+    salida.add_argument(
         "--por-banco",
         action="store_true",
-        help="Además del consolidado, un informe y un juego de archivos "
-        "separado por cada banco",
+        help="Atajo de --separar-por banco",
     )
     resumen.set_defaults(funcion=comando_resumen)
 
@@ -726,9 +723,13 @@ def construir_parser() -> argparse.ArgumentParser:
         "--limite", type=int, help="Máximo de terceros a mostrar en el consolidado"
     )
     informe.add_argument(
-        "--por-banco",
-        action="store_true",
-        help="Además del consolidado, un informe separado por cada banco",
+        "--separar-por",
+        choices=CRITERIOS,
+        help="Un informe por cada banco, extracto (archivo), mes o cuenta, "
+        "además del consolidado",
+    )
+    informe.add_argument(
+        "--por-banco", action="store_true", help="Atajo de --separar-por banco"
     )
     informe.add_argument("--salida", help="Carpeta donde escribir los CSV")
     informe.set_defaults(funcion=comando_informe)

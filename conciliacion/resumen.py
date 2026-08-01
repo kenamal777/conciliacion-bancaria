@@ -3,13 +3,20 @@
 from __future__ import annotations
 
 import calendar
+import os
 import re
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
 
 from .modelos import Confianza, Extracto, Movimiento, ResumenMensual
-from .normalizacion import CENTAVOS, clave, etiqueta_periodo, parse_fecha
+from .normalizacion import (
+    CENTAVOS,
+    clave,
+    etiqueta_periodo,
+    parse_fecha,
+    periodo_legible,
+)
 
 CERO = Decimal("0.00")
 
@@ -255,6 +262,70 @@ def resumen_mensual(
 # ---------------------------------------------------------------------------
 # Totales por banco y generales
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Agrupación: las distintas formas de mirar lo mismo
+# ---------------------------------------------------------------------------
+
+CRITERIOS: tuple[str, ...] = ("banco", "archivo", "mes", "cuenta")
+
+ETIQUETAS_CRITERIO: dict[str, str] = {
+    "banco": "banco",
+    "archivo": "extracto",
+    "mes": "mes",
+    "cuenta": "cuenta",
+}
+
+
+def agrupar_movimientos(
+    movimientos: list[Movimiento],
+    criterio: str | None,
+    *,
+    incluir_consolidado: bool = True,
+) -> list[tuple[str, list[Movimiento]]]:
+    """Parte los movimientos para emitir un informe por cada grupo.
+
+    Devuelve pares (etiqueta, movimientos). Una etiqueta vacía significa "no hay
+    separación", y el reporte sale sin encabezado extra.
+
+    Si el criterio deja un solo grupo no se separa nada: repetir el mismo
+    informe dos veces solo estorba.
+    """
+    if not criterio:
+        return [("", movimientos)]
+
+    if criterio not in CRITERIOS:
+        raise ValueError(
+            f"No sé separar por '{criterio}'. Use: {', '.join(CRITERIOS)}."
+        )
+
+    def llave(movimiento: Movimiento) -> str:
+        if criterio == "banco":
+            return movimiento.banco
+        if criterio == "archivo":
+            return os.path.basename(movimiento.archivo or "(sin archivo)")
+        if criterio == "mes":
+            return movimiento.periodo
+        cuenta = movimiento.cuenta or "sin cuenta"
+        return f"{movimiento.banco} - {cuenta}"
+
+    grupos: dict[str, list[Movimiento]] = {}
+    for movimiento in movimientos:
+        grupos.setdefault(llave(movimiento), []).append(movimiento)
+
+    if len(grupos) < 2:
+        return [("", movimientos)]
+
+    salida: list[tuple[str, list[Movimiento]]] = []
+    if incluir_consolidado:
+        salida.append(("CONSOLIDADO", movimientos))
+    for clave_grupo in sorted(grupos):
+        etiqueta = (
+            periodo_legible(clave_grupo) if criterio == "mes" else clave_grupo
+        )
+        salida.append((etiqueta, grupos[clave_grupo]))
+    return salida
+
 
 @dataclass
 class TotalBanco:

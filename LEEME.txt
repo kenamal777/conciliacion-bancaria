@@ -64,37 +64,60 @@ PASO 4. Los reportes le quedan en la carpeta:   2-REPORTES
 
 
 -------------------------------------------------------------------
-  VARIOS BANCOS: junto o por separado
+  JUNTO O POR SEPARADO: usted escoge como mirarlo
 -------------------------------------------------------------------
 
-Si mete extractos de varios bancos en la misma carpeta, el programa
-los reconoce solos y le pregunta como quiere el informe:
+Despues de escoger el periodo, si hay algo que separar el programa le
+pregunta como quiere ver el informe:
 
-    Hay movimientos de varios bancos. ¿Como quiere el informe?
+    ¿Como quiere ver el informe?
 
+      [T] Todo junto, en un solo informe consolidado
+      [B] Por banco: cada uno por separado (4 bancos)
+      [E] Por extracto: cada archivo que subio por separado (4 archivos)
+      [M] Por mes: cada mes por separado (4 meses)
+
+      O un solo banco en particular:
       [1] Solo Banco AV Villas  (11 movimientos)
       [2] Solo Banco de Bogota  (14 movimientos)
       [3] Solo Bancolombia      (6 movimientos)
       [4] Solo Nequi            (15 movimientos)
 
-      [T] Todos juntos, en un solo informe consolidado
-      [S] Cada banco por separado, mas el consolidado
+    Opcion (ENTER = todo junto):
 
-    Opcion (ENTER = todos juntos):
+Que hace cada una:
 
-Con la opcion [S] hace todo de una sola pasada: le deja el informe
-consolidado MAS un informe y un Excel independiente por cada banco.
-Los archivos llevan el nombre del banco, asi que no se pisan:
+  [T]  Un solo informe con todo sumado.
+
+  [B]  El consolidado MAS un informe y un Excel por cada banco.
+
+  [E]  Un informe por cada archivo que puso en 1-EXTRACTOS. Sirve para
+       revisar extracto por extracto, tal como se lo entrego el banco.
+
+  [M]  Un informe por cada mes, en orden cronologico. Sirve para
+       comparar como se movio el negocio mes a mes.
+
+  [1..4]  Solo ese banco.
+
+Todo esto de una sola pasada: no tiene que correr el programa varias
+veces. Los archivos llevan la etiqueta del grupo, asi que no se pisan:
 
     20260801_1105_CONSOLIDADO_conciliacion.xlsx
     20260801_1105_Bancolombia_conciliacion.xlsx
     20260801_1105_Nequi_conciliacion.xlsx
-    20260801_1105_Banco_de_Bogota_conciliacion.xlsx
-    20260801_1105_Banco_AV_Villas_conciliacion.xlsx
 
-Esto se combina con el periodo: puede pedir, por ejemplo, marzo de
-2025 de cada banco por separado. Y con un solo banco en la carpeta la
-pregunta no aparece, para no estorbar.
+    ...o si escogio [E], por extracto:
+    20260801_1105_bancolombia_febrero_conciliacion.xlsx
+    20260801_1105_nequi_octubre_conciliacion.xlsx
+
+    ...o si escogio [M], por mes:
+    20260801_1105_Marzo_2025_conciliacion.xlsx
+    20260801_1105_Abril_2025_conciliacion.xlsx
+
+Y se combina con el periodo: puede pedir, por ejemplo, todo el ano
+2025 separado por banco, o el primer semestre separado por mes.
+
+Si solo hay un banco, un extracto y un mes, la pregunta no aparece.
 
 
 -------------------------------------------------------------------

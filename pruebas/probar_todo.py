@@ -29,6 +29,7 @@ from conciliacion.motor import analizar, analizar_archivo  # noqa: E402
 from conciliacion.normalizacion import parse_fecha, parse_monto  # noqa: E402
 from conciliacion.reportes import CAMPOS_RESUMEN, escribir_csv, filas_resumen  # noqa: E402
 from conciliacion.resumen import (  # noqa: E402
+    agrupar_movimientos,
     filtrar,
     rango_de_periodo,
     resumen_mensual,
@@ -563,7 +564,7 @@ def probar_por_banco(extractos: list) -> None:
     print("\n[5c] Separación por banco")
     import argparse
 
-    from conciliacion.cli import _grupos_de_bancos
+    from conciliacion.cli import _grupos
     from conciliacion.reportes import (
         CAMPOS_RESUMEN,
         etiqueta_archivo,
@@ -597,12 +598,13 @@ def probar_por_banco(extractos: list) -> None:
     )
     igual(suma_movimientos, len(movimientos), "ningún movimiento se pierde al separar")
 
-    # Sin --por-banco sale un solo informe; con la opción, el consolidado más uno
-    # por banco.
-    sin_separar = argparse.Namespace(por_banco=False)
-    igual(len(_grupos_de_bancos(movimientos, sin_separar)), 1, "un solo informe")
-    separado = argparse.Namespace(por_banco=True)
-    grupos = _grupos_de_bancos(movimientos, separado)
+    # Sin separar sale un solo informe; separando, el consolidado más uno por
+    # cada grupo.
+    sin_separar = argparse.Namespace(separar_por=None, por_banco=False)
+    igual(len(_grupos(movimientos, sin_separar)), 1, "un solo informe")
+
+    separado = argparse.Namespace(separar_por=None, por_banco=True)
+    grupos = _grupos(movimientos, separado)
     igual(len(grupos), 5, "consolidado más un informe por banco")
     igual(grupos[0][0], "CONSOLIDADO", "el primero es el consolidado")
     igual(
@@ -614,10 +616,47 @@ def probar_por_banco(extractos: list) -> None:
     # Con un solo banco no tiene sentido separar.
     de_uno = [m for m in movimientos if m.banco == "Nequi"]
     igual(
-        len(_grupos_de_bancos(de_uno, separado)),
+        len(_grupos(de_uno, separado)),
         1,
         "con un solo banco no se duplica el informe",
     )
+
+    # Las otras dos formas de mirarlo: por extracto subido y por mes.
+    por_archivo = agrupar_movimientos(movimientos, "archivo")
+    igual(len(por_archivo), 5, "consolidado más un informe por cada extracto")
+    revisar(
+        any(e.endswith(".txt") for e, _ in por_archivo),
+        "las etiquetas por extracto son los nombres de archivo",
+    )
+    igual(
+        sum(len(g) for e, g in por_archivo if e != "CONSOLIDADO"),
+        len(movimientos),
+        "separar por extracto no pierde movimientos",
+    )
+
+    por_mes = agrupar_movimientos(movimientos, "mes")
+    etiquetas = [e for e, _ in por_mes if e != "CONSOLIDADO"]
+    igual(len(etiquetas), 2, "un informe por cada mes con movimientos")
+    igual(etiquetas[0], "Marzo 2025", "los meses salen en orden cronológico")
+    igual(etiquetas[-1], "Abril 2025", "y terminan en el más reciente")
+    igual(
+        sum(len(g) for e, g in por_mes if e != "CONSOLIDADO"),
+        len(movimientos),
+        "separar por mes no pierde movimientos",
+    )
+
+    por_cuenta = agrupar_movimientos(movimientos, "cuenta")
+    igual(
+        sum(len(g) for e, g in por_cuenta if e != "CONSOLIDADO"),
+        len(movimientos),
+        "separar por cuenta no pierde movimientos",
+    )
+
+    try:
+        agrupar_movimientos(movimientos, "color")
+        revisar(False, "un criterio inventado debería dar error")
+    except ValueError:
+        revisar(True, "avisa si el criterio de separación no existe")
 
     # Nombres de archivo válidos en Windows.
     igual(
@@ -626,6 +665,11 @@ def probar_por_banco(extractos: list) -> None:
         "el nombre del banco se vuelve un nombre de archivo válido",
     )
     igual(etiqueta_archivo("Banco AV Villas"), "Banco_AV_Villas", "sin espacios")
+    igual(
+        etiqueta_archivo("bancolombia_marzo.pdf"),
+        "bancolombia_marzo",
+        "al separar por extracto no queda la extensión pegada",
+    )
 
     # Los archivos de cada banco no se sobreescriben entre sí.
     carpeta = tempfile.mkdtemp(prefix="conciliacion_bancos_")
