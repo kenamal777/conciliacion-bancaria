@@ -349,7 +349,7 @@ def veredicto(resumenes: list, consolidado) -> None:
         )
     print("""
   Qué hacer: confirme que cargó el extracto completo de ese mes. Si el
-  problema sigue, use la opción 6 del menú sobre ese archivo y compárteme
+  problema sigue, use la opción 7 del menú sobre ese archivo y compárteme
   el resultado para ajustar la lectura.
 """)
 
@@ -395,7 +395,9 @@ def conciliar(
     - El PDF es una imagen escaneada y falta instalar Tesseract OCR.
     - El extracto tiene un formato distinto al esperado.
 
-  Use la opción 6 del menú para ver qué está leyendo el programa.
+  Use la opción 7 del menú sobre ese archivo: deja un diagnóstico guardado
+  en 2-REPORTES con todo lo que alcanzó a leer, y con eso se puede ajustar
+  la lectura de ese formato.
 """)
         return
 
@@ -527,7 +529,9 @@ def revisar_archivo() -> None:
         return
 
     ruta = rutas[int(eleccion) - 1]
-    ver_texto = si_o_no("  ¿Mostrar también todo el texto extraído?", defecto=False)
+    ver_texto = si_o_no(
+        "  ¿Mostrar en pantalla todo el texto extraído?", defecto=False
+    )
 
     class Opciones:
         archivos = [ruta]
@@ -536,13 +540,52 @@ def revisar_archivo() -> None:
         dpi = 300
         idioma = "spa"
         forzar_ocr = False
-        texto = ver_texto
+        # El archivo que se guarda siempre lleva el texto completo: es lo que
+        # hace falta para ajustar la lectura de un formato nuevo.
+        texto = True
 
-    comando_diagnostico(Opciones())
-    print("""
-  Si algo se ve mal en este reporte, cópielo y compártalo: con eso se
-  ajusta la lectura de ese formato de extracto.
+    import contextlib
+    import io
+
+    memoria = io.StringIO()
+    with contextlib.redirect_stdout(memoria):
+        comando_diagnostico(Opciones())
+    reporte = memoria.getvalue()
+
+    if ver_texto:
+        print(reporte)
+    else:
+        print(reporte.split("  TEXTO EXTRAÍDO:")[0])
+
+    from conciliacion.reportes import etiqueta_archivo
+
+    os.makedirs(CARPETA_REPORTES, exist_ok=True)
+    destino = os.path.join(
+        CARPETA_REPORTES,
+        f"diagnostico_{etiqueta_archivo(os.path.basename(ruta))}.txt",
+    )
+    try:
+        with open(destino, "w", encoding="utf-8") as archivo:
+            archivo.write(reporte)
+    except OSError as error:
+        print(f"\n  No pude guardar el diagnóstico: {error}")
+        return
+
+    print(f"""
+  DIAGNÓSTICO GUARDADO EN:
+
+      {destino}
+
+  Ese archivo es texto plano y trae todo lo que el programa alcanzó a leer
+  del extracto. Si el extracto no se leyó bien, adjunte ese archivo para
+  poder ajustar la lectura de ese formato.
+
+  Revíselo antes de compartirlo, por si prefiere borrar algún dato: lo que
+  se necesita es la ESTRUCTURA (los títulos de las columnas, el formato de
+  las fechas y de las cifras), no los valores.
 """)
+    if si_o_no("  ¿Abrir la carpeta donde quedó?"):
+        abrir_carpeta(CARPETA_REPORTES)
 
 
 def revisar_instalacion() -> None:
